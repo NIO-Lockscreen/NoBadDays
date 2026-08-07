@@ -1,23 +1,126 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const bookHref = "/Ingen-darlige-dager.pdf";
 
+/** Antall trykk på ankeret som avslører tellerpanelet. */
+const ANCHOR_TAPS = 5;
+/** Trykkene må komme i en serie – en enslig klikk skal ikke telle med senere. */
+const TAP_RESET_MS = 1200;
+/** Panelet lukker seg selv igjen etter en stund. */
+const PANEL_TIMEOUT_MS = 8000;
+
+type ViewCount = { views: number; persisted: boolean };
+
 export default function Home() {
   const forewordDialog = useRef<HTMLDialogElement>(null);
+  const [viewCount, setViewCount] = useState<ViewCount | null>(null);
+  const [showViews, setShowViews] = useState(false);
+  const taps = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasCounted = useRef(false);
 
   const openForeword = () => forewordDialog.current?.showModal();
+
+  // Registrer besøket. Guarden holder mot React StrictMode, som kjører
+  // effekter to ganger i utvikling og ellers ville telt hvert besøk dobbelt.
+  useEffect(() => {
+    if (hasCounted.current) return;
+    hasCounted.current = true;
+
+    let active = true;
+    fetch("/api/views", { method: "POST" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: ViewCount | null) => {
+        if (active && data) setViewCount(data);
+      })
+      .catch(() => {
+        // Teller siden er en bonus – feiler den, skal siden være uberørt.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+    };
+  }, []);
+
+  // Skjult funksjon: fem trykk på ankeret viser antall sidevisninger.
+  const handleAnchorTap = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (tapTimer.current) clearTimeout(tapTimer.current);
+    taps.current += 1;
+
+    if (taps.current >= ANCHOR_TAPS) {
+      taps.current = 0;
+      setShowViews(true);
+      return;
+    }
+
+    tapTimer.current = setTimeout(() => {
+      taps.current = 0;
+    }, TAP_RESET_MS);
+  }, []);
+
+  useEffect(() => {
+    if (!showViews) return;
+
+    const hide = () => setShowViews(false);
+    const timer = setTimeout(hide, PANEL_TIMEOUT_MS);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") hide();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [showViews]);
 
   return (
     <div className="site-shell">
       <header className="site-header">
         <nav className="nav-wrap" aria-label="Hovedmeny">
-          <a className="wordmark" href="#top" aria-label="Ingen dårlige dager – til toppen">
-            <span className="wordmark-mark" aria-hidden="true">⚓</span>
-            <span>Ingen dårlige dager</span>
-          </a>
+          <div className="wordmark-slot">
+            <a className="wordmark" href="#top" aria-label="Ingen dårlige dager – til toppen">
+              {/* Dekorativt for skjermlesere – og skjult snarvei til telleren. */}
+              <span className="wordmark-mark" aria-hidden="true" onClick={handleAnchorTap}>
+                ⚓
+              </span>
+              <span>Ingen dårlige dager</span>
+            </a>
+
+            {showViews && (
+              <div className="views-pop" role="status">
+                <p className="views-pop-label">Sidevisninger</p>
+                <p className="views-pop-count">
+                  {viewCount ? viewCount.views.toLocaleString("nb-NO") : "…"}
+                </p>
+                {viewCount && !viewCount.persisted && (
+                  <p className="views-pop-note">
+                    Midlertidig telling – koble til en Redis-database i Vercel.
+                  </p>
+                )}
+                <button
+                  className="views-pop-close"
+                  type="button"
+                  onClick={() => setShowViews(false)}
+                  aria-label="Lukk sidevisninger"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
           <div className="nav-links">
             <button className="nav-foreword" type="button" onClick={openForeword}>
               Forord
