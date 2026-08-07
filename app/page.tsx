@@ -141,7 +141,7 @@ export default function Home() {
               <span>dårlige dager</span>
             </h1>
             <p className="hero-question">
-              Hva ville skje dersom vi kunne fjerne alt som gjør vondt,
+              Hva ville skje dersom vi kunne fjerne alt som gjør livet vondt,
               uten å fjerne selve livet?
             </p>
             <div className="hero-actions">
@@ -229,7 +229,7 @@ export default function Home() {
             </p>
             <p>
               Denne historien begynte med et spørsmål: Hva ville skje dersom vi
-              kunne fjerne alt som gjør vondt, uten å fjerne selve livet?
+              kunne fjerne alt som gjør livet vondt, uten å fjerne selve livet?
             </p>
             <p className="foreword-signoff">Jeg håper du liker svaret.</p>
           </article>

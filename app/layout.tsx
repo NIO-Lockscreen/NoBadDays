@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ingen dårlige dager",
     description:
-      "Hva ville skje dersom vi kunne fjerne alt som gjør vondt, uten å fjerne selve livet?",
+      "Hva ville skje dersom vi kunne fjerne alt som gjør livet vondt, uten å fjerne selve livet?",
     type: "book",
     locale: "nb_NO",
     images: ["/assets/cover-original.jpeg"],
