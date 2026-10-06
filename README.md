@@ -94,5 +94,5 @@ lib/
   views.ts          lagring av telleren (Redis, med fallback i minnet)
 public/
   Ingen-darlige-dager.pdf     selve boken
-  assets/cover-original.jpeg  bokomslaget
+  assets/cover.jpg            bokomslaget
 ```

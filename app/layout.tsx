@@ -20,7 +20,7 @@ export const metadata: Metadata = {
       "Hva ville skje dersom vi kunne fjerne alt som gjør livet vondt, uten å fjerne selve livet?",
     type: "book",
     locale: "nb_NO",
-    images: ["/assets/cover-original.jpeg"],
+    images: ["/assets/cover.jpg"],
   },
 };
 

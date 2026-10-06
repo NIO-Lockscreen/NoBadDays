@@ -165,10 +165,10 @@ export default function Home() {
               <div className="frame-bevel">
                 <div className="frame-mat">
                   <Image
-                    src="/assets/cover-original.jpeg"
-                    alt="En lang Kiwi-kvittering festet til et kjøleskap med en rund magnet med blått anker"
-                    width={1086}
-                    height={1448}
+                    src="/assets/cover.jpg"
+                    alt="Bokomslaget: tittelen Ingen dårlige dager og forfatternavnet Thomas Davis ved siden av en lang kvittering festet med en rund magnet med blått anker"
+                    width={1222}
+                    height={1398}
                     sizes="(max-width: 640px) 88vw, 416px"
                     priority
                   />
